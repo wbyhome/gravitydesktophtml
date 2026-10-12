@@ -63,7 +63,10 @@
 
   var saved = null;
   try { saved = localStorage.getItem(LANG_KEY); } catch (e) { /* 隐私模式 */ }
-  var initial = saved || ((navigator.language || 'en').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en');
+  /* 默认英文：**不再根据浏览器语言自动切中文**（原先的 navigator.language 检测已移除）。
+     - 首次访问的访客一律看到英文；因为 HTML 源码本身也是英文，所以不会出现语言闪烁
+     - 只有主动点过「中文」按钮的访客，才会被 localStorage 记住并保持中文 */
+  var initial = saved || 'en';
   applyLang(initial);
 
   segBtns.forEach(function (b) {

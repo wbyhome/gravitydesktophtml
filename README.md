@@ -7,7 +7,7 @@
 
 - 商店链接：https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R
 - 技术栈：纯静态 HTML + CSS + 原生 JS，**零依赖、无构建步骤**
-- 默认语言：英文（利于 SEO）；可一键切换简体中文（自动识别浏览器语言 + localStorage 记忆）
+- 默认语言：**英文**（利于 SEO，且与 HTML 源码一致所以不会闪）；可一键切换简体中文（切换后由 localStorage 记住）
 
 ---
 
@@ -512,7 +512,10 @@ promo.addEventListener('timeupdate', function () {
 - **英文写在 HTML 里作默认内容**（利于 SEO 与首屏），中文挂在同一个元素的 `data-zh` 上。
 - `main.js` 启动时把所有 `[data-zh]` 元素缓存下来，切换时整体替换 `innerHTML`。
 - 同时切换 `<title>`、`meta description`、`og:title/description`、`twitter:title/description`、`<html lang>`（`META` 对象）。
-- 语言来源优先级：`localStorage['gravity-lang']` → 浏览器语言 → 英文。
+- 语言来源优先级：`localStorage['gravity-lang']` → **英文**。
+  ⚠️ **不再自动识别浏览器语言**（原先的 `navigator.language` 检测已移除）。
+  这样做的好处：HTML 源码本身就是英文，默认英文可以做到**零闪烁**；
+  而中文访客手动点一下「中文」即可，切换后会被 `localStorage` 记住。
 - 顶栏的 `EN / 中文` 是两个 `<button>`，靠 `aria-pressed` 表示当前选中状态。
 
 ### 要加第三种语言
@@ -617,7 +620,12 @@ HTML 注释里如果写了「用原生 `<details>`」这句话，`grep -c "<deta
 
 ## 12. 改动记录
 
-- **v16（当前）**：**补齐站内 SEO**（见第 11.1 节）。改动：
+- **v17（当前）**：**默认语言改为英文**。原先 `main.js` 会读 `navigator.language`，中文浏览器自动切中文。
+  现改为 `var initial = saved || 'en'` —— **首次访问一律英文**（与 HTML 源码一致，所以零闪烁），
+  只有主动点过「中文」的访客才被 `localStorage` 记住并保持中文。
+  好处：源码给英文对 SEO 更友好、爬虫与首屏都拿到英文、也不会出现语言闪烁。
+  README 第 8 节与首部说明已同步。
+- **v16**：**补齐站内 SEO**（见第 11.1 节）。改动：
   - 新增 `robots.txt` + `sitemap.xml`（域名是占位，上线前必改）
   - `description` 改为含 `Windows 10/11` 的自然句；`meta robots` 加 `max-image-preview:large`；
     og / twitter 补 `og:image:type`、`og:image:alt`、`twitter:image:alt`
