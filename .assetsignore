@@ -1,0 +1,27 @@
+# Cloudflare Workers 静态资源上传时会读取这个文件，列出的内容不会上传到线上。
+# 目的：只把「真正的站点文件」发出去，仓库里的说明/配置/版本控制数据不上线。
+
+# 版本控制
+.git
+.gitignore
+
+# 本文件自身
+.assetsignore
+
+# 部署与说明文件（不是站点内容）
+README.md
+wrangler.jsonc
+wrangler.toml
+package.json
+package-lock.json
+node_modules
+
+# Wrangler 自己的工作目录（dev 会生成 cache / state / tmp，绝不能上线）
+.wrangler
+
+# 系统 / 编辑器垃圾文件
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode
+.idea

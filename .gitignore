@@ -21,3 +21,6 @@ _shot*.png
 
 # ---- 依赖目录（本项目零依赖，留着以防以后误装）----
 node_modules/
+
+# ---- Wrangler 本地工作目录（dev 会生成 cache / state / tmp）----
+.wrangler/

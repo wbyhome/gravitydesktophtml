@@ -1,0 +1,26 @@
+{
+  // Gravity Desktop 官网 —— Cloudflare Workers 静态资源部署配置
+  //
+  // 本项目是「零依赖、无构建」的纯静态站点：站点根目录就是项目根目录，
+  // 不需要打包、不需要 Worker 脚本，直接把整个目录当静态资源上传即可。
+  //
+  // 部署：npx wrangler deploy
+  // 本地预览：npx wrangler dev
+  //
+  // 部署后会得到一个免费的 *.workers.dev 子域名。
+
+  "name": "gravity-desktop",
+  "compatibility_date": "2026-10-12",
+
+  "assets": {
+    // 站点根 = 项目根（index.html 就在这一层）
+    "directory": ".",
+    // 访问不存在的路径时正常返回 404，而不是回落到 index.html。
+    // 这样对 SEO 更安全（避免把 404 页面当成重复内容收录）。
+    "not_found_handling": "none"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

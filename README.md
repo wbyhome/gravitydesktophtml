@@ -67,6 +67,26 @@ python -m http.server 8080     # 或：npx serve .
 ### Vercel / Netlify
 把 `gravity-desktop/` 作为项目根目录导入即可。无构建命令，Output 目录填 `.`（Vercel 选 "Other" 框架预设）。
 
+### Cloudflare Workers（静态资源）
+
+本项目零依赖、无构建，站点根就是项目根，用 **Workers Static Assets** 直接上传即可。
+
+> ⚠️ **不要用 `npm create cloudflare@latest`。** 那套脚手架会生成 `src/index.ts`、
+> `tsconfig.json`、构建链和一堆样板文件，还得把站点文件手动搬进去——对本项目是纯负担。
+> 直接在现有目录里 `wrangler deploy` 就行。
+
+```bash
+npx wrangler login    # 首次：浏览器里点一下授权
+npx wrangler deploy   # 部署，得到 https://gravity-desktop.<账号子域>.workers.dev
+npx wrangler dev      # 本地预览（不需要登录）
+```
+
+- 配置在 `wrangler.jsonc`：`assets.directory = "."`、`not_found_handling = "none"`
+  （不存在的路径正常返回 404，而不是回落到 index.html——避免 SEO 上被判成重复内容）
+- `.assetsignore` 排除 `.git` / `README.md` / `wrangler.jsonc` 等非站点内容，只把真正的站点文件发上线
+- 无自定义域名时用 `*.workers.dev` 子域名；绑自定义域名在 Cloudflare 面板里加即可
+- **上线后记得把 `robots.txt` / `sitemap.xml` / `canonical` 里的占位域名换成真实地址**（见下）
+
 ### 部署前记得改
 - **域名占位**：`https://gravitydesktop.app/` 是占位值，上线前必须换成真实域名。共 **8 处**：
   - `index.html` 4 处（`<link rel="canonical">`、`og:url`、`twitter:url`、`SoftwareApplication` JSON-LD 的 `url`）
