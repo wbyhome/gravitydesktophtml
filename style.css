@@ -1,0 +1,750 @@
+/* =========================================================
+   Gravity Desktop — 官方首页
+   极简 · 大量留白 · 一条线一种色
+   白底近黑字 · 深色星空示意区 · 核心红做唯一点缀
+   ========================================================= */
+
+/* ---------- 1. 变量 ----------
+   全站配色都走这里。浅色（默认）写在 :root，深色写在 html[data-theme="dark"]，
+   两边令牌一一对应——**改主题只改这两块，不用碰任何具体规则**。
+   主题由 index.html <head> 里的内联脚本在首次绘制前设好（避免刷新闪一下）。 */
+:root {
+  --bg:      #ffffff;
+  --ink:     #0a0b10;
+  --body:    #5c6272;
+  --muted:   #9ba1af;
+  --line:    #ebecf0;
+
+  --accent:  #e8483c;   /* 核心红：只用在极小处 */
+
+  /* 「窗口」（演示 + 示意图）——浅色版是一块白面板 */
+  --panel:        #ffffff;
+  --panel-line:   #e7e9ef;
+  --panel-ink:    #0a0b10;
+  --panel-body:   #5c6272;
+  --panel-muted:  #787f8f;
+  --panel-link:   rgba(232, 72, 60, .42);   /* 示意图的细线 */
+  --panel-doc:    #eaedf3;                  /* 文档图标：白底上要压深一点才看得见 */
+  --panel-doc-line: #9aa2b1;
+  --panel-ring:   rgba(232, 72, 60, .34);
+
+  /* 顶栏 / 分段控件 / 按钮 */
+  --top-bg:        rgba(255, 255, 255, .86);
+  --seg-bg:        #f3f4f7;
+  --seg-on:        #ffffff;
+  --seg-on-shadow: 0 1px 2px rgba(10, 11, 16, .10);
+  --btn-bg:        #0a0b10;
+  --btn-fg:        #ffffff;
+  --btn-hover:     #23262f;
+  --btn-active:    #000000;
+
+  --sel:       rgba(232, 72, 60, .16);
+  --shot-shadow: 0 30px 70px -34px rgba(10, 11, 16, .45);
+
+  --wrap:    1080px;
+  --read:    680px;     /* 正文窄栏 */
+
+  --top-h:   60px;
+
+  --ease:    cubic-bezier(.22, 1, .36, 1);
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue",
+          "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* ---------- 1.1 深色主题 ---------- */
+html[data-theme="dark"] {
+  --bg:      #0b0d12;
+  --ink:     #f1f2f6;
+  --body:    #a7adba;
+  --muted:   #868d9c;
+  --line:    #1d2129;
+
+  /* 深色版窗口回到纯黑：页面比它稍亮，读起来是一块内嵌的屏幕 */
+  --panel:        #000000;
+  --panel-line:   rgba(255, 255, 255, .08);
+  --panel-ink:    #ffffff;
+  --panel-body:   rgba(255, 255, 255, .62);
+  --panel-muted:  rgba(255, 255, 255, .52);
+  --panel-link:   rgba(255, 148, 138, .6);
+  --panel-doc:    #f4f5f7;
+  --panel-doc-line: #c2c8d4;
+  --panel-ring:   rgba(232, 72, 60, .38);
+
+  --top-bg:        rgba(11, 13, 18, .82);
+  --seg-bg:        #1a1e26;
+  --seg-on:        #2c313b;
+  --seg-on-shadow: none;
+  --btn-bg:        #f1f2f6;
+  --btn-fg:        #0b0d12;
+  --btn-hover:     #ffffff;
+  --btn-active:    #dfe3ea;
+
+  --sel:       rgba(232, 72, 60, .30);
+  --shot-shadow: 0 30px 70px -34px rgba(0, 0, 0, .78);
+}
+
+/* ---------- 2. 基础 ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--top-h) + 24px);
+  background: var(--bg);            /* 过卷区域跟随主题 */
+  color-scheme: light;              /* 滚动条 / 原生控件（含 <video> 控制条）跟着变 */
+}
+html[data-theme="dark"] { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--body);
+  font-family: var(--font);
+  font-size: 16.5px;
+  line-height: 1.78;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { margin: 0; color: var(--ink); font-weight: 640; line-height: 1.16; letter-spacing: -.028em; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+img, svg { display: block; }
+svg { max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+strong { font-weight: 640; color: var(--ink); }
+
+::selection { background: var(--sel); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* 只给读屏用的文字（对比表左上角的空单元格等） */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ico { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ico-18 { width: 18px; height: 18px; }
+.ico-14 { width: 14px; height: 14px; stroke-width: 1.9; }
+.btn .ico { fill: currentColor; stroke: none; }
+
+/* ---------- 2.1 中文排版修正 ----------
+   上面那套负字距 / 1.06 行高是按英文字形调的：拉丁字母有天然的侧边留白，
+   收紧一点更精神；中文方块字没有，负字距会让笔画贴在一起，行高过低会让两行几乎顶住。
+   切到中文时统一修正（main.js 会把 <html lang> 设成 zh-CN）。 */
+html[lang="zh-CN"] .hero-title,
+html[lang="zh-CN"] .sec-title,
+html[lang="zh-CN"] .orbit-title,
+html[lang="zh-CN"] .cta-title {
+  letter-spacing: -.012em;
+  line-height: 1.2;
+}
+/* 字间距同理：.16em 的拉开感只适合全大写拉丁词，套到中文上会散架 */
+html[lang="zh-CN"] .eyebrow,
+html[lang="zh-CN"] .orbit-kicker { letter-spacing: .1em; }
+html[lang="zh-CN"] .hero-lede,
+html[lang="zh-CN"] .prose { line-height: 1.86; }
+
+/* ---------- 3. 布局 ---------- */
+/* 三档宽度：.wrap 1080 / .wrap.narrow 736 / .wrap.wide 1336（内容宽 1280）。
+   `.wrap.wide` 是「大窗口」专用：深色演示窗口和真实桌面截图都用它，
+   所以两块大图的左右边缘在任何视口下都严格对齐。 */
+.wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: 28px; }
+.wrap.narrow { max-width: calc(var(--read) + 56px); }
+.wrap.wide   { max-width: calc(1280px + 56px); }
+
+.section { padding: clamp(72px, 9vw, 124px) 0; }
+
+.sec-title { font-size: clamp(23px, 3vw, 34px); letter-spacing: -.03em; margin-bottom: 30px; }
+
+.prose { display: flex; flex-direction: column; gap: 20px; }
+.prose p { font-size: 16.5px; }
+.prose-muted { color: var(--muted); }
+
+/* ---------- 4. 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 20px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  transition: background-color .2s var(--ease), transform .18s var(--ease);
+}
+.btn:hover { background: var(--btn-hover); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); background: var(--btn-active); }
+.btn-sm { padding: 8px 15px; font-size: 13.5px; border-radius: 8px; }
+.btn-lg { padding: 14px 26px; font-size: 16px; border-radius: 10px; }
+
+/* ---------- 5. 顶栏 ---------- */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--top-bg);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .25s var(--ease), background-color .25s var(--ease), color .25s var(--ease);
+}
+.top.scrolled { border-bottom-color: var(--line); }
+
+.top-inner {
+  height: var(--top-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
+.brand-mark { width: 22px; height: 22px; color: var(--accent); }
+.brand-mark svg { width: 22px; height: 22px; }
+.brand-name { font-size: 15.5px; font-weight: 660; letter-spacing: -.02em; }
+
+.top-right { display: flex; align-items: center; gap: 14px; }
+
+/* 语言 / 主题 —— 同一套极简分段控件 */
+.lang-seg,
+.theme-seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--seg-bg);
+}
+.lang-seg button,
+.theme-seg button {
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted);
+  transition: color .18s var(--ease), background-color .18s var(--ease);
+}
+.lang-seg button:hover,
+.theme-seg button:hover { color: var(--body); }
+.lang-seg button[aria-pressed="true"],
+.theme-seg button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--seg-on);
+  box-shadow: var(--seg-on-shadow);
+}
+
+/* 主题控件里放的是图标，不用文字的内边距 */
+.theme-seg button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 8px;
+}
+.theme-seg .ico { width: 15px; height: 15px; stroke-width: 1.8; }
+
+/* 深色区不再通栏（收成 1280px 宽的居中窗口），所以顶栏不再需要「落在深色上转深」——
+   那种反白样式会让顶栏左右两侧的白底上出现浅色文字，读不出来。顶栏现在始终是浅色。 */
+
+/* ---------- 6.「窗口」容器（演示 + 示意图，1280 宽） ----------
+   底色 / 圆角 / 描边都铺在 `.panel` 这一个元素上，上下两块内容之间没有接缝，
+   读起来是一整块。宽度 = `.wrap.wide` 的内容宽 = 1280（`padding-inline: 28px`
+   是面板内侧留白），和下面「真实桌面截图」「操作录屏」用的是同一条宽度规则，
+   三块大素材的左右边缘在任何视口下都严格对齐。
+
+   描边用 `box-shadow: inset` 而不是 `border`——border 会让盒子宽 2px，
+   三块素材就不再等宽了。 */
+.panel {
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--panel-line);
+}
+
+.showcase {
+  padding: clamp(44px, 5.5vw, 76px) 28px 0;
+}
+
+/* 舞台没有底色和圆角——它和所在的黑窗口融为一体，看起来就是浮在黑色上的演示。
+   `max-width` 是双保险：`transform: scale()` 放大 iframe 会让内容发虚，只允许缩小、不允许放大。 */
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  aspect-ratio: 1280 / 768;
+  overflow: hidden;
+}
+
+/* 固定 1280×768，由 JS 按容器宽度等比 scale()，坐标与交互全部保持原样 */
+.stage-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 768px;
+  border: 0;
+  display: block;
+  transform-origin: 0 0;
+  transform: scale(1);
+}
+
+.stage-cap {
+  margin-top: 18px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--panel-muted);
+  max-width: 72ch;
+}
+
+/* ---------- 7. 痛点（页面第一屏） ---------- */
+.hero { padding: clamp(72px, 10vw, 136px) 0 clamp(44px, 5.5vw, 72px); }
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 620;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+
+/* 断行由 HTML 里的 <br> 决定：中英的断句位置不同，靠 max-width 无法同时兼顾
+   （`ch` 是「0」的宽度，对中文只有半个字宽，写 15ch 会把中文标题挤成难看的两行） */
+.hero-title {
+  font-size: clamp(30px, 5.4vw, 60px);
+  font-weight: 620;
+  letter-spacing: -.036em;
+  line-height: 1.08;
+  margin-bottom: 30px;
+}
+
+.hero-lede {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 56ch;
+  font-size: clamp(16.5px, 1.5vw, 18px);
+  line-height: 1.78;
+}
+.hero-lede p:last-child { color: var(--ink); }
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 36px;
+}
+.hero-note { font-size: 14px; color: var(--muted); }
+
+/* ---------- 8. 示意图：引力 ----------
+   底色 / 圆角都在外层 `.panel` 上，这里只负责排版与文字颜色。
+   所有颜色都走 `--panel-*` 令牌，所以浅色版和深色版共用同一套规则。 */
+.orbit {
+  color: var(--panel-ink);
+  padding: clamp(56px, 7vw, 96px) 28px clamp(56px, 7vw, 88px);
+}
+
+.orbit-head { max-width: 720px; margin-inline: auto; text-align: center; }
+.orbit-kicker {
+  font-size: 12px;
+  font-weight: 620;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 22px;
+}
+.orbit-title {
+  font-size: clamp(26px, 3.6vw, 42px);
+  color: var(--panel-ink);
+  letter-spacing: -.032em;
+  margin-bottom: 22px;
+}
+.orbit-sub {
+  font-size: clamp(15.5px, 1.5vw, 17.5px);
+  line-height: 1.74;
+  color: var(--panel-body);
+  max-width: 58ch;
+  margin-inline: auto;
+}
+
+.orbit-stage {
+  margin-top: clamp(24px, 3.4vw, 44px);
+}
+.orb { width: 100%; height: auto; }
+
+/* 连线：细，颜色跟随核心，画在图标下层 */
+.orb .links line {
+  stroke: var(--panel-link);
+  stroke-width: 1.2;
+}
+
+/* 文件图标：照真实桌面图标的简化画法（品牌色方块在两种主题下都成立，
+   只有「白纸文档」需要在白底上压深一点，走 --panel-doc） */
+.orb .fi-letter {
+  fill: #fff;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.orb .fi-doc { fill: var(--panel-doc); }
+.orb .fi-line {
+  fill: none;
+  stroke: var(--panel-doc-line);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* 核心：实心圆 + 外环 + 白色符号 + 右上计数徽章 + 下方名称 */
+.orb .core-ring { fill: none; stroke: var(--panel-ring); stroke-width: 1.5; }
+.orb .core-dot  { fill: var(--accent); }
+.orb .core-mark { fill: none; stroke: #fff; stroke-width: 2; }
+.orb .core-badge rect { fill: #161b33; }
+.orb .core-badge text {
+  fill: #fff;
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-anchor: middle;
+  letter-spacing: .02em;
+}
+.orb .core-name {
+  fill: var(--panel-muted);
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-anchor: middle;
+  letter-spacing: -.01em;
+}
+
+/* 图例 */
+.orbit-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 34px;
+  list-style: none;
+  margin: clamp(26px, 3.4vw, 40px) 0 0;
+  padding: 0;
+}
+.orbit-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13.5px;
+  color: var(--panel-muted);
+}
+.orbit-legend i { width: 14px; height: 14px; flex: none; }
+.lg-core { border-radius: 50%; background: var(--accent); }
+.lg-file { border-radius: 3px; background: #f5c24a; }
+
+/* ---------- 9. 真实桌面截图 + 操作录屏 ---------- */
+.real { padding-top: clamp(40px, 5vw, 72px); }
+
+.shot { margin: 0; }
+
+.shot-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shot-shadow);
+}
+
+.shot-cap {
+  margin-top: 16px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* 操作录屏：和上面的截图同宽（都走 .wrap.wide），同圆角、同描边、同投影，
+   读起来是「同一组真实素材」里的第二块。 */
+.clip { margin: clamp(34px, 4.5vw, 56px) 0 0; }
+
+.clip-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shot-shadow);
+  background: #000;              /* 封面还没加载出来时是黑的，不闪白 */
+  object-fit: cover;
+}
+
+.clip-cap {
+  margin-top: 16px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ---------- 10. 功能：极简编号列表 ---------- */
+.steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.steps li {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 0 28px;
+  padding: 34px 0;
+  border-bottom: 1px solid var(--line);
+}
+.steps .num {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: .04em;
+  padding-top: 5px;
+}
+.steps h3 { font-size: 19px; margin-bottom: 10px; letter-spacing: -.022em; }
+.steps p { font-size: 16px; max-width: 62ch; }
+
+/* ---------- 10.1 对比表（和传统分区工具的区别） ---------- */
+.cmp {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 34px;
+}
+
+.cmp th,
+.cmp td {
+  text-align: left;
+  vertical-align: top;
+  padding: 17px 24px 17px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cmp thead th {
+  padding-top: 0;
+  padding-bottom: 13px;
+  font-size: 11.5px;
+  font-weight: 620;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cmp thead .cmp-dim { width: 26%; }
+
+.cmp tbody th {
+  width: 26%;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+
+.cmp td { font-size: 15.5px; color: var(--body); }
+.cmp .cmp-us { color: var(--ink); }
+
+.cmp tbody tr:last-child th,
+.cmp tbody tr:last-child td { border-bottom: 0; }
+
+/* 窄屏堆叠时才出现的列名（桌面端由 thead 承担） */
+.cmp-lbl { display: none; }
+
+.cmp-note {
+  margin-top: 20px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 62ch;
+}
+
+/* ---------- 10.2 常见问题 ----------
+   原生 <details>，不需要 JS；折叠只是视觉收起，答案始终在 DOM 里。 */
+.faq { border-top: 1px solid var(--line); }
+
+.faq-item { border-bottom: 1px solid var(--line); }
+
+.faq-item summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 21px 0;
+  list-style: none;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 620;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "+";
+  margin-left: auto;
+  flex: none;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--muted);
+  transition: color .18s var(--ease);
+}
+.faq-item summary:hover::after { color: var(--accent); }
+.faq-item[open] summary::after { content: "\2212"; }   /* U+2212 减号 */
+
+.faq-body { padding: 0 0 24px; }
+.faq-body p { font-size: 16px; line-height: 1.82; color: var(--body); max-width: 62ch; }
+
+/* ---------- 11. 支持语言 ---------- */
+.langs-sub { font-size: 16.5px; margin-bottom: 34px; max-width: 60ch; }
+
+.lang-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.lang-row li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--bg);
+}
+.lang-row b { font-size: 15.5px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+.lang-row span { font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: .04em; }
+
+.langs-note { font-size: 13.5px; color: var(--muted); max-width: 62ch; }
+
+/* ---------- 12. 下载 ---------- */
+.cta { text-align: center; padding-bottom: clamp(88px, 11vw, 152px); }
+.cta .wrap.narrow { display: flex; flex-direction: column; align-items: center; }
+.cta-title {
+  font-size: clamp(27px, 4vw, 46px);
+  letter-spacing: -.034em;
+  max-width: 20ch;
+  margin-bottom: 20px;
+}
+.cta-sub { font-size: 16.5px; color: var(--body); margin-bottom: 34px; }
+
+/* ---------- 13. 页脚 ---------- */
+.foot { border-top: 1px solid var(--line); }
+.foot-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.foot-brand { font-weight: 620; color: var(--ink); letter-spacing: -.01em; }
+.foot-link { display: inline-flex; align-items: center; gap: 7px; transition: color .18s var(--ease); }
+.foot-link:hover { color: var(--ink); }
+.foot-note { margin-left: auto; }
+
+/* ---------- 14. 滚动进场 ---------- */
+.reveal { opacity: 0; transform: translateY(14px); }
+.reveal.in { animation: rise .7s var(--ease) var(--d, 0ms) both; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+
+/* ---------- 15. 响应式 ---------- */
+@media (max-width: 940px) {
+  .steps li { grid-template-columns: 58px 1fr; gap: 0 20px; padding: 28px 0; }
+  .lang-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foot-note { margin-left: 0; width: 100%; }
+}
+
+@media (max-width: 620px) {
+  body { font-size: 16px; }
+  .wrap { padding-inline: 20px; }
+  .brand-name { display: none; }
+  .btn-sm { padding: 8px 13px; font-size: 13px; }
+  .top-right { gap: 8px; }
+  .theme-seg button { padding: 5px 7px; }
+
+  .showcase { padding-top: 30px; }
+  .stage-cap { font-size: 13px; margin-top: 14px; }
+
+  .shot-img { border-radius: 10px; }
+  .shot-cap { font-size: 13px; margin-top: 13px; }
+
+  .clip { margin-top: 28px; }
+  .clip-video { border-radius: 10px; }
+  .clip-cap { font-size: 13px; margin-top: 13px; }
+
+  .hero-actions { gap: 14px; }
+  .hero-actions .btn { width: 100%; }
+
+  .steps li { grid-template-columns: 1fr; gap: 8px; padding: 24px 0; }
+  .steps .num { padding-top: 0; }
+
+  /* 对比表：三列在窄屏上挤不下，改成「一行一张卡」堆叠，
+     列名由 .cmp-lbl 补回来（桌面端由 thead 承担，所以平时是隐藏的） */
+  .cmp { margin-top: 26px; }
+  .cmp thead { display: none; }
+  .cmp,
+  .cmp tbody,
+  .cmp tr,
+  .cmp th,
+  .cmp td { display: block; }
+  .cmp tr { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .cmp tbody tr:last-child { border-bottom: 0; }
+  .cmp tbody th {
+    width: auto;
+    padding: 0 0 12px;
+    border: 0;
+    font-size: 16px;
+  }
+  .cmp td { padding: 0 0 10px; border: 0; font-size: 15.5px; }
+  .cmp tr td:last-child { padding-bottom: 0; }
+  .cmp-lbl {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 620;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .cmp-us .cmp-lbl { color: var(--accent); }
+  .cmp-note { margin-top: 16px; font-size: 13px; }
+
+  .faq-item summary { font-size: 16px; gap: 18px; padding: 18px 0; }
+  .faq-body { padding-bottom: 20px; }
+  .faq-body p { font-size: 15.5px; }
+  .lang-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lang-row li { padding: 12px 14px; }
+
+  .orbit-legend { gap: 10px 22px; }
+  .orbit-legend li { font-size: 12.5px; }
+}
+
+@media (max-width: 400px) {
+  .lang-seg button { padding: 5px 9px; font-size: 12px; }
+  .theme-seg button { padding: 4px 6px; }
+  .theme-seg .ico { width: 14px; height: 14px; }
+}
+
+/* ---------- 16. 降低动效 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  .reveal { opacity: 1; transform: none; }
+  html { scroll-behavior: auto; }
+}

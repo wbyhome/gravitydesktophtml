@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Gravity Desktop 站点地图
+  ⚠️ 上线前把 https://gravitydesktop.app/ 换成真实域名（同时改 index.html 的 canonical /
+     og:url / og:image，以及 robots.txt 里的 Sitemap 地址）。
+
+  目前只有一页，是正常的——新站提交单页 sitemap 完全可以，
+  它的作用是告诉搜索引擎「这个 URL 存在、可以抓」，而不是「我有多少页」。
+  以后加了 /faq/、/changelog/、/zh/ 之类，在这里各加一个 <url> 块即可。
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://gravitydesktop.app/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

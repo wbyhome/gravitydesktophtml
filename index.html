@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gravity Desktop – A desktop that stays where you put it</title>
+
+<!-- ===== SEO ===== -->
+<meta name="description" content="Gravity Desktop is a free Windows 10/11 desktop organizer. Files gather around a visual core and stay where you pin them — nothing on disk is moved.">
+<meta name="keywords" content="Gravity Desktop, desktop organizer, visual cores, pin desktop layout, spatial memory, Windows desktop, free, 桌面整理, 视觉核心, 引力">
+<meta name="author" content="Gravity Desktop">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://gravitydesktop.app/">
+<meta name="theme-color" content="#ffffff" id="themeColor">
+
+<!-- ===== 主题初始化：必须在首次绘制前执行，否则刷新时会先闪一下浅色再变深 =====
+     优先级：URL ?theme= > localStorage > 默认 light -->
+<script>
+(function () {
+  var t = 'light';
+  try {
+    var p = new URLSearchParams(location.search).get('theme');
+    if (p === 'dark' || p === 'light') t = p;
+    else t = localStorage.getItem('gravity-theme') || 'light';
+  } catch (e) { /* 隐私模式 / 老浏览器 */ }
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+})();
+</script>
+
+<!-- ===== Open Graph / 社交分享 ===== -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gravity Desktop">
+<meta property="og:title" content="Gravity Desktop – A desktop that stays where you put it">
+<meta property="og:description" content="Files gather around a visual core and stay where you pin them. Free on the Microsoft Store.">
+<meta property="og:url" content="https://gravitydesktop.app/">
+<meta property="og:image" content="https://gravitydesktop.app/assets/img/og-cover.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Gravity Desktop: a red visual core with files joined to it by thin lines, on a Windows desktop.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gravity Desktop – A desktop that stays where you put it">
+<meta name="twitter:description" content="Files gather around a visual core and stay where you pin them. Free on the Microsoft Store.">
+<meta name="twitter:image" content="https://gravitydesktop.app/assets/img/og-cover.jpg">
+<meta name="twitter:image:alt" content="Gravity Desktop: a red visual core with files joined to it by thin lines, on a Windows desktop.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B0D14'/%3E%3Ccircle cx='16' cy='16' r='4.6' fill='%23E8483C'/%3E%3Ccircle cx='16' cy='16' r='10.2' fill='none' stroke='%23E8483C' stroke-opacity='.45' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='5.8' r='2' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+
+<!-- ===== 结构化数据 ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Gravity Desktop",
+  "operatingSystem": "Windows 10, Windows 11",
+  "applicationCategory": "UtilitiesApplication",
+  "description": "A free Windows desktop organizer. Files gather around a visual core like satellites in orbit and stay where you put them — without moving any real files.",
+  "url": "https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R",
+  "downloadUrl": "https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R",
+  "inLanguage": ["en", "zh", "ja", "de", "fr", "es"],
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<!-- FAQ 结构化数据：与页面第 10 节「常见问题」一一对应（英文，即页面的默认语言）。
+     注：Google 从 2023 年起把 FAQ 富媒体结果收窄到政府 / 医疗类站点，
+     普通站点不会再显示折叠问答，但这份标记对 Bing 等引擎和语义理解仍然有效。 -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does Gravity Desktop move or change my real files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It only changes how things appear on the desktop. Files, folders and paths on disk stay exactly as they are — nothing is moved, copied or reorganised."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is Gravity Desktop different from Fences-style desktop organizers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Fencing tools collect icons into boxes so the desktop looks tidier. Gravity Desktop keeps positions stable instead: files gather around a visual core, you drag them where it feels right, then pin the layout so they stop drifting."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Gravity Desktop free? Do I need an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is completely free and downloads from the Microsoft Store. No account or sign-up is required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which Windows versions are supported?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Windows 10 and Windows 11."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which languages is the interface available in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Six: English, Simplified Chinese, Japanese, German, French and Spanish. It follows your system language after install."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why doesn't it sort my desktop automatically?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because automatic sorting makes the decision for you, and positions keep changing. Gravity Desktop leaves that decision to you: drag items where you want them, pin the layout, and they stay there."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<!-- ============ 图标精灵 ============ -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-win" viewBox="0 0 24 24"><path d="M3 5.4l7.4-1v7.2H3V5.4Zm8.6-1.2L21 3v8.6h-9.4V4.2ZM3 12.7h7.4v7.2L3 18.6v-5.9Zm8.6 0H21V21l-9.4-1.3v-7Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4.1"/>
+    <path d="M12 2.6v2.5M12 18.9v2.5M2.6 12h2.5M18.9 12h2.5M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8"/>
+  </symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24">
+    <path d="M20.6 14.8A8.8 8.8 0 0 1 9.2 3.4a8.8 8.8 0 1 0 11.4 11.4Z"/>
+  </symbol>
+</svg>
+
+<!-- ==================== 顶栏（极简） ==================== -->
+<header class="top" id="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="#top" aria-label="Gravity Desktop">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="10.2" fill="none" stroke="currentColor" stroke-opacity=".38" stroke-width="1.6"/>
+          <circle cx="16" cy="16" r="4.4" fill="currentColor"/>
+          <circle cx="16" cy="5.8" r="2" fill="currentColor" fill-opacity=".55"/>
+        </svg>
+      </span>
+      <span class="brand-name">Gravity</span>
+    </a>
+
+    <div class="top-right">
+      <!-- 主题切换：浅色 / 深色 -->
+      <div class="theme-seg" id="themeSeg" role="group" aria-label="Theme / 主题">
+        <button type="button" data-theme="light" aria-pressed="true" aria-label="Light theme">
+          <svg class="ico" aria-hidden="true"><use href="#i-sun"></use></svg>
+        </button>
+        <button type="button" data-theme="dark" aria-pressed="false" aria-label="Dark theme">
+          <svg class="ico" aria-hidden="true"><use href="#i-moon"></use></svg>
+        </button>
+      </div>
+
+      <!-- 语言切换 -->
+      <div class="lang-seg" id="langSeg" role="group" aria-label="Language / 语言">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+      </div>
+
+      <a class="btn btn-sm" href="https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R" target="_blank" rel="noopener noreferrer">
+        <span data-zh="免费下载">Download</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ==================== 1. 痛点（页面第一屏） ==================== -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow" data-zh="Windows 免费桌面工具">Free for Windows</p>
+
+      <h1 class="hero-title" data-zh="图标一直在动，不容易找？">
+        Icons keep moving. Hard to find?
+      </h1>
+
+      <div class="hero-lede">
+        <p data-zh="每天随着新文件增加，文件就变化位置，让人难以第一时间找到它。">
+          New files arrive every day, and positions shift with them — so you can't find
+          what you need at a glance.
+        </p>
+        <p data-zh="但是，我们的 Gravity Desktop 给桌面一个引力中心。相关的文件像卫星一样聚拢在核心周围，位置一旦固定，就一直停在那里。">
+          Gravity Desktop gives your desktop a centre of gravity. Related files gather around a
+          core like satellites — and once pinned, they stay exactly where you put them.
+        </p>
+      </div>
+
+      <div class="hero-actions">
+        <a class="btn btn-lg" href="https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R" target="_blank" rel="noopener noreferrer">
+          <svg class="ico ico-18" aria-hidden="true"><use href="#i-win"></use></svg>
+          <span data-zh="前往微软商店下载">Download on Microsoft Store</span>
+        </a>
+        <span class="hero-note" data-zh="免费 · 无需账号 · 不移动真实文件">Free · No account · Never moves your files</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 2 + 3. 「窗口」（演示 + 示意图） ====================
+       两块内容共用一个 `.panel`：底色、圆角、描边都铺在这一个元素上，
+       上下两块之间没有接缝，读起来是一整块。
+       `.wrap.wide` 定宽 1280，和下面「真实桌面截图」用的是同一条宽度规则——
+       三块大素材左右边缘严格对齐。
+       底色跟随主题：浅色版是白面板，深色版是纯黑面板（见 style.css 第 1 节）。 -->
+  <div class="wrap wide">
+    <div class="panel">
+
+      <section class="showcase" id="demo">
+        <div class="stage" id="stage">
+          <iframe class="stage-frame" id="stageFrame"
+                  src="assets/demo/gravity-demo.html?lang=en&amp;autoplay=1&amp;theme=light"
+                  title="Gravity Desktop interactive demo"></iframe>
+        </div>
+        <p class="stage-cap" data-zh="点击演示里的按钮，看文件飞入、被核心吸住；再点重置，它们又会散开。">
+          Click the buttons inside the demo to watch files fly in and lock to the core — then reset to scatter them again.
+        </p>
+      </section>
+
+      <!-- ==================== 3. 示意图：引力 ==================== -->
+      <section class="orbit" id="orbit">
+        <div class="orbit-head">
+          <p class="orbit-kicker" data-zh="引力">Gravity</p>
+          <h2 class="orbit-title" data-zh="被核心抓住的文件，不会再漂走。">
+            Files held by a core never drift back.
+          </h2>
+          <p class="orbit-sub" data-zh="相关的文件被引力聚到核心周围，由细线连住，位置就此固定下来。核心是锚点——你记住的不再是文件名，而是它在哪。">
+            Related files are pulled in and held around a core, joined to it by thin lines. The core
+            is the anchor — so what you remember is where a thing lives, not what it's called.
+          </p>
+        </div>
+
+        <div class="orbit-stage">
+          <svg class="orb" viewBox="334 183 540 320" role="img" aria-labelledby="orbTitle orbDesc">
+            <title id="orbTitle" data-zh="示意图：一个红色的视觉核心，五个文件由细线连接围绕在它周围，核心右上角有一个显示 6/15 的徽章。">Diagram: one red visual core with five files joined to it by thin lines, and a 6/15 badge at its top right.</title>
+            <desc id="orbDesc" data-zh="红色核心位于中央，下方标着名称；五个文件分布在四周，每个都有一条细线连到核心。">A red core sits at the centre with its name below; five files surround it, each joined to the core by a thin line.</desc>
+
+            <!-- 连线：画在图标下层，颜色跟随核心 -->
+            <g class="links">
+              <line x1="600" y1="380" x2="600" y2="210"/>
+              <line x1="600" y1="380" x2="740" y2="280"/>
+              <line x1="600" y1="380" x2="725" y2="475"/>
+              <line x1="600" y1="380" x2="480" y2="470"/>
+              <line x1="600" y1="380" x2="468" y2="285"/>
+            </g>
+
+            <!-- 五个文件 -->
+            <g class="files">
+              <!-- 上：文件夹 -->
+              <g transform="translate(582,196)">
+                <rect x="0" y="0" width="15" height="10" rx="2.5" fill="#e0a82e"/>
+                <rect x="0" y="6" width="36" height="22" rx="3" fill="#f5c24a"/>
+              </g>
+              <!-- 右上：Excel -->
+              <g transform="translate(724,264)">
+                <rect width="32" height="32" rx="5" fill="#1e7145"/>
+                <text class="fi-letter" x="16" y="22">X</text>
+              </g>
+            <!-- 右下：文档 -->
+            <g transform="translate(709,459)">
+              <rect class="fi-doc" width="32" height="32" rx="5"/>
+              <path class="fi-line" d="M9 11h14M9 16h14M9 21h9"/>
+            </g>
+              <!-- 左下：文件夹 -->
+              <g transform="translate(462,456)">
+                <rect x="0" y="0" width="15" height="10" rx="2.5" fill="#e0a82e"/>
+                <rect x="0" y="6" width="36" height="22" rx="3" fill="#f5c24a"/>
+              </g>
+              <!-- 左上：Word -->
+              <g transform="translate(452,269)">
+                <rect width="32" height="32" rx="5" fill="#2b579a"/>
+                <text class="fi-letter" x="16" y="22">W</text>
+              </g>
+            </g>
+
+            <!-- 核心：实心圆 + 外环 + 右上角计数徽章 + 下方名称 -->
+            <g class="core">
+              <circle class="core-ring" cx="600" cy="380" r="27"/>
+              <circle class="core-dot"  cx="600" cy="380" r="20"/>
+              <rect   class="core-mark" x="591" y="374" width="18" height="13" rx="3"/>
+              <g class="core-badge">
+                <rect x="598" y="349" width="44" height="19" rx="9.5"/>
+                <text x="620" y="362.5">6/15</text>
+              </g>
+              <text class="core-name" x="600" y="426" data-zh="文件核心 6">File Core 6</text>
+            </g>
+          </svg>
+        </div>
+
+        <ul class="orbit-legend">
+          <li><i class="lg-core" aria-hidden="true"></i><span data-zh="视觉核心 · 锚点">Visual core · anchor</span></li>
+          <li><i class="lg-file" aria-hidden="true"></i><span data-zh="文件 · 由细线连到核心">Files · joined to the core</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <!-- ==================== 4. 真实桌面 ==================== -->
+  <section class="section real">
+    <div class="wrap wide">
+      <figure class="shot">
+        <img class="shot-img"
+             src="assets/img/desktop-real.webp"
+             srcset="assets/img/desktop-real-960.webp 960w, assets/img/desktop-real.webp 1920w"
+             sizes="(max-width: 700px) 100vw, (max-width: 1340px) 92vw, 1280px"
+             width="1920" height="1042"
+             alt="Gravity Desktop running on a real Windows desktop: four visual cores, each with its related files connected by thin lines, alongside the usual desktop icons on the left."
+             loading="lazy" decoding="async">
+        <figcaption class="shot-cap" data-zh="真实桌面上的样子：核心把相关的文件聚在身边，位置就此固定下来。">
+          On a real desktop — each core holding its related files in place.
+        </figcaption>
+      </figure>
+
+      <!-- 操作录屏：同样走 .wrap.wide，和上面的截图严格同宽 -->
+      <figure class="clip">
+        <video class="clip-video"
+               poster="assets/img/desktop-demo-poster.webp"
+               width="1600" height="900"
+               controls preload="metadata" playsinline
+               aria-label="Screen recording: using Gravity Desktop on a real Windows desktop">
+          <source src="assets/video/desktop-demo.mp4" type="video/mp4">
+          <span data-zh="你的浏览器不支持 HTML5 视频，可以">
+            Your browser can't play this video — you can
+          </span>
+          <a href="assets/video/desktop-demo.mp4" download>
+            <span data-zh="直接下载观看">download it instead</span>
+          </a>。
+        </video>
+        <figcaption class="clip-cap" data-zh="完整操作录屏（1 分 36 秒）：文件被吸到核心旁边就固定在那里，磁盘上的真实文件一动不动。">
+          Full screen recording (1 min 36 s): files snap into place beside a core — nothing on disk is moved.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ==================== 5. 解决方案 ==================== -->
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 class="sec-title" data-zh="整齐，并不等于好找。">Neat is not the same as findable.</h2>
+      <div class="prose">
+        <p data-zh="大多数整理工具把图标收进格子或盒子里。桌面看起来干净了，位置却仍然在变。新文件落下、布局微调之后，你还是得靠眼睛扫名字。">
+          Most organizers drop icons into boxes and fences. The desktop looks cleaner, but
+          positions still change. A new file arrives, the layout shifts, and you're back to
+          scanning names.
+        </p>
+        <p data-zh="位置不稳定，就形成不了记忆。Gravity Desktop 不整理你的文件，它固定它们的位置——真实文件不会被移动或改动，改变的只是桌面上的组织方式。">
+          When positions don't hold, memory never forms. Gravity Desktop doesn't tidy your
+          files — it fixes where they sit. Nothing on disk is moved or changed; only the
+          desktop's arrangement.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 6. 功能 ==================== -->
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 class="sec-title" data-zh="它具体做了什么">What it actually does</h2>
+
+      <ol class="steps">
+        <li>
+          <span class="num" aria-hidden="true">01</span>
+          <div>
+            <h3 data-zh="视觉核心">Visual cores</h3>
+            <p data-zh="把应用和文件围绕一个清晰的中心点分组。每个核心是桌面上的地标，相关内容聚在一起，而不是散落在各处。">
+              Group apps and files around one clear centre. Each core becomes a landmark on your
+              desktop, so related things sit together instead of scattering.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="num" aria-hidden="true">02</span>
+          <div>
+            <h3 data-zh="自由摆放 + 一键固定">Free position, then pin</h3>
+            <p data-zh="拖动文件到你觉得顺手的位置。摆好后一键固定，位置不再乱跑，空间记忆才真正开始起作用。">
+              Drag items to wherever feels natural. When it's right, pin the layout. Positions
+              stop drifting, and spatial memory starts working for you.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="num" aria-hidden="true">03</span>
+          <div>
+            <h3 data-zh="不移动真实文件">Never moves your files</h3>
+            <p data-zh="只改变桌面上的呈现方式，不移动、不复制、不重组磁盘上的任何文件。文件夹结构和路径保持原样。">
+              Only how things appear on the desktop changes. Nothing on disk is moved, copied or
+              reorganised. Your folder structure and paths stay exactly as they are.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="num" aria-hidden="true">04</span>
+          <div>
+            <h3 data-zh="可折叠核心">Collapsible cores</h3>
+            <p data-zh="需要看完整分组时展开，想减少干扰时收起。位置会保留，下次随时恢复。">
+              Expand a core when you need the full group, collapse it when you want less noise.
+              Every position is kept, ready when you come back.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ==================== 7. 和传统桌面分区工具的区别 ==================== -->
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 class="sec-title" data-zh="和传统桌面分区工具的区别">Compared with Fences-style organizers</h2>
+
+      <div class="prose">
+        <p data-zh="分区工具解决的是「桌面看起来乱」，Gravity Desktop 解决的是「记不住东西在哪」。前者把图标收进一块块盒子，后者给桌面一个引力中心——文件围绕核心聚拢，位置由你定，然后固定下来。">
+          Fencing tools solve "the desktop looks messy". Gravity Desktop solves "I can't
+          remember where things are". One collects icons into boxes; the other gives your
+          desktop a centre of gravity — you decide where things sit, then pin it.
+        </p>
+      </div>
+
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th scope="col" class="cmp-dim"><span class="sr-only" data-zh="对比项">Dimension</span></th>
+            <th scope="col" data-zh="Gravity Desktop">Gravity Desktop</th>
+            <th scope="col" data-zh="传统分区 / 盒子工具">Fences-style organizers</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" data-zh="出发点">What it's for</th>
+            <td class="cmp-us">
+              <span class="cmp-lbl" data-zh="Gravity Desktop">Gravity Desktop</span>
+              <span data-zh="让位置稳定下来，形成空间记忆">Make positions hold, so spatial memory can form</span>
+            </td>
+            <td class="cmp-them">
+              <span class="cmp-lbl" data-zh="传统分区 / 盒子工具">Fences-style organizers</span>
+              <span data-zh="让桌面看起来更整齐">Make the desktop look tidier</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" data-zh="组织单位">Unit of grouping</th>
+            <td class="cmp-us">
+              <span class="cmp-lbl" data-zh="Gravity Desktop">Gravity Desktop</span>
+              <span data-zh="一个视觉核心，相关的文件聚在它周围">One visual core, with related files gathered around it</span>
+            </td>
+            <td class="cmp-them">
+              <span class="cmp-lbl" data-zh="传统分区 / 盒子工具">Fences-style organizers</span>
+              <span data-zh="一块块半透明盒子 / 栅栏">A set of translucent boxes or fences</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" data-zh="位置谁说了算">Who sets the position</th>
+            <td class="cmp-us">
+              <span class="cmp-lbl" data-zh="Gravity Desktop">Gravity Desktop</span>
+              <span data-zh="你拖到顺手的位置，然后一键固定">You drag it where it feels right, then pin it</span>
+            </td>
+            <td class="cmp-them">
+              <span class="cmp-lbl" data-zh="传统分区 / 盒子工具">Fences-style organizers</span>
+              <span data-zh="由盒子的范围和排列规则决定">Determined by the box bounds and its ordering rules</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" data-zh="新文件进来">When a new file arrives</th>
+            <td class="cmp-us">
+              <span class="cmp-lbl" data-zh="Gravity Desktop">Gravity Desktop</span>
+              <span data-zh="不会挤动已经固定好的位置">It won't push around anything you've already pinned</span>
+            </td>
+            <td class="cmp-them">
+              <span class="cmp-lbl" data-zh="传统分区 / 盒子工具">Fences-style organizers</span>
+              <span data-zh="通常会在盒子内部重新排列">Items usually re-flow inside the box</span>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" data-zh="磁盘上的真实文件">Real files on disk</th>
+            <td class="cmp-us">
+              <span class="cmp-lbl" data-zh="Gravity Desktop">Gravity Desktop</span>
+              <span data-zh="不移动、不复制、不修改">Not moved, copied or changed</span>
+            </td>
+            <td class="cmp-them">
+              <span class="cmp-lbl" data-zh="传统分区 / 盒子工具">Fences-style organizers</span>
+              <span data-zh="同样不移动">Also not moved</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="cmp-note" data-zh="两边都不会移动磁盘上的文件——差别只在桌面上的组织方式。">
+        Neither tool moves anything on disk — the difference is only in how the desktop is
+        organised.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 8. 适合谁 ==================== -->
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 class="sec-title" data-zh="适合谁">Who it's for</h2>
+      <div class="prose">
+        <p data-zh="适合已经厌倦每天重新找同一批图标的人。如果你习惯用「东西在屏幕上的位置」来记事情，而不是只靠名字，这种方式会更自然。">
+          For anyone tired of re-finding the same icons every day. If you remember things by
+          where they sit on screen — not just what they're called — this will feel natural.
+        </p>
+        <p class="prose-muted" data-zh="如果你只想要一键自动把图标塞进固定格子，完全不在意位置是否稳定，传统收纳工具可能更合适。">
+          If you only want one-click auto-sorting into rigid boxes and never care whether
+          positions hold, a traditional fencing tool may suit you better.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 9. 支持语言 ==================== -->
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 class="sec-title" data-zh="支持你的语言">Available in your language</h2>
+      <p class="langs-sub" data-zh="Gravity Desktop 的界面已本地化为 6 种语言，安装后跟随系统语言自动切换。">
+        The Gravity Desktop interface is localised in six languages and follows your system
+        language after install.
+      </p>
+      <ul class="lang-row">
+        <li><b>English</b><span>en</span></li>
+        <li><b>中文</b><span>zh</span></li>
+        <li><b>日本語</b><span>ja</span></li>
+        <li><b>Deutsch</b><span>de</span></li>
+        <li><b>Français</b><span>fr</span></li>
+        <li><b>Español</b><span>es</span></li>
+      </ul>
+      <p class="langs-note" data-zh="语言清单来自微软商店的商品信息。本官网目前提供英文与简体中文两个版本。">
+        Language list as published on the Microsoft Store listing. This website itself is
+        available in English and Simplified Chinese.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 10. 常见问题 ====================
+       用原生 details / summary 元素：不需要 JS，内容始终在 DOM 里（搜索引擎抓得到），
+       折叠态只是视觉收起。问答文本与 <head> 里的 FAQPage 结构化数据一一对应。 -->
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 class="sec-title" data-zh="常见问题">Frequently asked questions</h2>
+
+      <div class="faq">
+        <details class="faq-item">
+          <summary data-zh="会移动或修改我的真实文件吗？">Does it move or change my real files?</summary>
+          <div class="faq-body">
+            <p data-zh="不会。它只改变桌面上的呈现方式——磁盘上的文件、文件夹结构和路径都保持原样，不移动、不复制、不重组。">
+              No. It only changes how things appear on the desktop. Your files, folder
+              structure and paths on disk all stay exactly as they are — nothing is moved,
+              copied or reorganised.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary data-zh="它和传统桌面分区工具（Fences 这类）有什么不同？">How is it different from Fences-style organizers?</summary>
+          <div class="faq-body">
+            <p data-zh="分区工具把图标收进盒子，让桌面看起来整齐；Gravity Desktop 让位置稳定下来，让你靠位置记住东西在哪。位置由你拖动决定，然后一键固定——新文件落下也不会挤动它。">
+              Fencing tools collect icons into boxes so the desktop looks tidier. Gravity
+              Desktop keeps positions stable instead: files gather around a visual core, you
+              drag them where it feels right, then pin the layout so a new file can't push
+              them around.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary data-zh="免费吗？需要注册账号吗？">Is it free? Do I need an account?</summary>
+          <div class="faq-body">
+            <p data-zh="完全免费，从微软商店下载，不需要注册任何账号。">
+              It's completely free and installs from the Microsoft Store. No account or
+              sign-up is required.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary data-zh="支持哪些 Windows 版本？">Which Windows versions are supported?</summary>
+          <div class="faq-body">
+            <p data-zh="Windows 10 和 Windows 11。">
+              Windows 10 and Windows 11.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary data-zh="界面支持哪些语言？">Which languages is the interface available in?</summary>
+          <div class="faq-body">
+            <p data-zh="六种：英语、简体中文、日语、德语、法语、西班牙语。安装后会跟随系统语言自动切换。">
+              Six: English, Simplified Chinese, Japanese, German, French and Spanish. It
+              follows your system language after install.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary data-zh="为什么不自动帮我整理？">Why doesn't it sort my desktop automatically?</summary>
+          <div class="faq-body">
+            <p data-zh="因为自动整理会替你做决定，位置照样会变。Gravity Desktop 把这个决定权留给你：自己拖到顺手的位置，一键固定，之后它就一直停在那里。">
+              Because automatic sorting makes the decision for you — and positions keep
+              changing anyway. Gravity Desktop leaves that decision to you: drag items where
+              you want them, pin the layout, and they stay there.
+            </p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 11. 下载 ==================== -->
+  <section class="section cta">
+    <div class="wrap narrow">
+      <h2 class="cta-title" data-zh="让你的桌面，停在你放下的地方。">
+        Let your desktop stay where you put it.
+      </h2>
+      <p class="cta-sub" data-zh="免费，已上架微软商店，无需注册账号。">
+        Free on the Microsoft Store. No account required.
+      </p>
+      <a class="btn btn-lg" href="https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R" target="_blank" rel="noopener noreferrer">
+        <svg class="ico ico-18" aria-hidden="true"><use href="#i-win"></use></svg>
+        <span data-zh="下载 Gravity Desktop">Download Gravity Desktop</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ==================== 页脚 ==================== -->
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <span class="foot-brand">Gravity Desktop</span>
+    <a class="foot-link" href="https://apps.microsoft.com/store/detail/9P4Q9JK2DV8R" target="_blank" rel="noopener noreferrer">
+      <svg class="ico ico-14" aria-hidden="true"><use href="#i-win"></use></svg>
+      <span>Microsoft Store</span>
+    </a>
+    <span class="foot-note" data-zh="免费的 Windows 桌面工具 · 视觉核心 · 位置固定">
+      Free desktop tool for Windows · Visual cores · Pinned positions
+    </span>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

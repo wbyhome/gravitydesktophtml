@@ -1,0 +1,13 @@
+# Gravity Desktop — https://gravitydesktop.app/
+#
+# ⚠️ 上线前把下面的域名换成真实域名（同时改 index.html 里的 canonical / og:url / og:image
+#    和 sitemap.xml 的 <loc>）。三处域名必须完全一致，否则 Search Console 会报「已提交的网址
+#    与所属资源不匹配」。
+
+User-agent: *
+Allow: /
+
+# 单页站，没有需要屏蔽的目录。
+# 如果以后加了 /draft/ 之类的内部页面，在这里补 Disallow。
+
+Sitemap: https://gravitydesktop.app/sitemap.xml

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280">
+    <title>引力桌面演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        /* 外围黑灰色背景，模拟显示器边框 */
+        body {
+            width: 100vw;
+            height: 100vh;
+            background-color: #000; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 锁死 1280x768 绝对尺寸
+           底色与官网 #orbit 的深色带一致（纯黑），两侧视觉上连成一块 */
+        .screen {
+            width: 1280px;
+            height: 768px;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        /* 极简底部控制 */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            backdrop-filter: blur(5px);
+            transition: 0.2s;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* 窄屏（由外层页面告知）时收起控制条，只留自动演示 */
+        .compact .controls { display: none; }
+
+        /* 图标基础属性 */
+        .icon-node {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 60px;
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* 降低存在感的普通打底文件 */
+        .generic-file {
+            width: 40px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .generic-file::before, .generic-file::after {
+            content: "";
+            width: 20px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 1px;
+        }
+
+        /* 1:1 图片提取的扁平目标图标 */
+        .flat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+        .icon-w { background: #336699; }
+        .icon-x { background: #2b7a4b; }
+        .icon-folder { 
+            background: #f7c346; 
+            height: 36px; 
+            border-radius: 4px; 
+            position: relative;
+            margin-top: 8px;
+        }
+        .icon-folder::before { 
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: 0;
+            width: 16px;
+            height: 8px;
+            background: #f7c346;
+            border-radius: 4px 4px 0 0;
+        }
+        .icon-txt { 
+            background: #f4f5f7; 
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .icon-txt span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #b0b4bd;
+            border-radius: 1px;
+        }
+
+        /* 绝对定位于 1280x768 画面右侧的红色核心 */
+        .core-center {
+            position: absolute;
+            /* 严格锚点：右侧偏中 */
+            left: 920px;
+            top: 384px; 
+            transform: translate(-50%, -50%);
+            width: 64px;
+            height: 64px;
+            background: #e04f47;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* 外环颜色对齐官网 #orbit 示意图的 core-ring */
+            box-shadow: 0 0 0 8px rgba(232, 72, 60, 0.38);
+            z-index: 30;
+        }
+        .core-center .inner-box {
+            width: 24px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 4px;
+        }
+        .core-badge {
+            position: absolute;
+            top: -5px;
+            right: -15px;
+            background: #191c26;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 10px;
+            z-index: 31;
+        }
+        .core-text {
+            position: absolute;
+            bottom: -35px;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            white-space: nowrap;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        }
+
+        /* 铜色连线画布（与屏幕等大） */
+        .svg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 768px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .copper-line {
+            stroke: #9e5950;
+            stroke-width: 2;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* =========================================================
+           浅色皮肤
+           由外层页面通过 ?theme=light 或 postMessage({type:'gd-theme'}) 开启。
+           单独打开本文件时不带 data-theme，保持原来那套深色外观。
+           只覆盖颜色，不动任何布局与动画参数。
+           ========================================================= */
+        html[data-theme="light"] body,
+        html[data-theme="light"] .screen { background: #fff; }
+
+        html[data-theme="light"] .btn {
+            background: rgba(10, 11, 16, 0.045);
+            border-color: rgba(10, 11, 16, 0.14);
+            color: #0a0b10;
+        }
+        html[data-theme="light"] .btn:hover { background: rgba(10, 11, 16, 0.09); }
+
+        /* 打底文件：白底上原本只有 13% 黑的描边，糊成一片看不清。
+           现在给它一个明确的浅灰底 + 更实的描边 + 极淡投影，让它读起来是「一张纸」
+           而不是一团雾；内部线条也同步压深。仍然比 5 个彩色目标文件弱，主次不丢。 */
+        html[data-theme="light"] .generic-file {
+            background: #f4f5f8;
+            border-color: rgba(10, 11, 16, 0.22);
+            box-shadow: 0 1px 2px rgba(10, 11, 16, 0.07);
+        }
+        html[data-theme="light"] .generic-file::before,
+        html[data-theme="light"] .generic-file::after { background: rgba(10, 11, 16, 0.30); }
+
+        html[data-theme="light"] .flat-icon { box-shadow: 0 4px 10px rgba(10, 11, 16, 0.16); }
+        html[data-theme="light"] .icon-txt { border: 1px solid #dfe3ea; }
+
+        html[data-theme="light"] .core-center { box-shadow: 0 0 0 8px rgba(232, 72, 60, 0.28); }
+        html[data-theme="light"] .core-text { color: #0a0b10; text-shadow: none; }
+        html[data-theme="light"] .copper-line { stroke: rgba(232, 72, 60, 0.5); }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1280x768 绝对容器 -->
+    <div class="screen" id="screen">
+        
+        <svg class="svg-layer" id="svgLayer"></svg>
+
+        <div class="controls">
+            <button class="btn" id="btnPlay">▶️ 演示：飞入紧密连接</button>
+            <button class="btn" id="btnReset">🔄 重置散落</button>
+        </div>
+
+        <div id="leftZone"></div>
+
+        <div class="core-center">
+            <div class="inner-box"></div>
+            <div class="core-badge">6/15</div>
+            <div class="core-text">文件核心 6</div>
+        </div>
+    </div>
+
+    <script>
+        const leftZone = document.getElementById('leftZone');
+        const svgLayer = document.getElementById('svgLayer');
+        
+        let shuffleInterval;
+        let isConnected = false;
+
+        // 生成左侧刷新的随机网格 (适配 1280x768 屏幕的左半边)
+        function getGridSlots() {
+            const slots = [];
+            for(let r = 0; r < 7; r++) {
+                for(let c = 0; c < 7; c++) {
+                    slots.push({x: 50 + c * 90, y: 60 + r * 90});
+                }
+            }
+            return slots;
+        }
+
+        // 1. 创建左侧持续刷新的 30 个普通背景文件
+        const normalFiles = [];
+        for (let i = 0; i < 30; i++) {
+            const el = document.createElement('div');
+            el.className = 'icon-node';
+            el.innerHTML = '<div class="generic-file"></div>';
+            leftZone.appendChild(el);
+            normalFiles.push(el);
+        }
+
+        // 2. 创建 5 个目标文件 (大幅缩短了距离参数 targetX 和 targetY，视觉更紧凑)
+        const targetFilesData = [
+            { id: 1, html: '<div class="flat-icon icon-folder"></div>', targetX: 0, targetY: -120 },    // 正上方：距离更近
+            { id: 2, html: '<div class="flat-icon icon-w">W</div>', targetX: -120, targetY: -40 },      // 左上方
+            { id: 3, html: '<div class="flat-icon icon-x">X</div>', targetX: 120, targetY: -40 },       // 右上方
+            { id: 4, html: '<div class="flat-icon icon-folder"></div>', targetX: -100, targetY: 100 },  // 左下方
+            { id: 5, html: '<div class="flat-icon icon-txt"><span></span><span></span><span></span></div>', targetX: 100, targetY: 100 } // 右下方
+        ];
+
+        const targetFiles = [];
+
+        targetFilesData.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'icon-node';
+            el.innerHTML = item.html;
+            leftZone.appendChild(el);
+            item.element = el;
+            targetFiles.push(item);
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('class', 'copper-line');
+            svgLayer.appendChild(line);
+            item.line = line;
+        });
+
+        // 舒缓的随机排布
+        function shuffleLeft() {
+            const slots = getGridSlots();
+            slots.sort(() => Math.random() - 0.5); 
+            
+            let slotIndex = 0;
+            normalFiles.forEach(el => {
+                const pos = slots[slotIndex++];
+                el.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+            });
+
+            if (!isConnected) {
+                targetFiles.forEach(item => {
+                    const pos = slots[slotIndex++];
+                    item.element.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+                });
+            }
+        }
+
+        // 飞入 1280x768 屏幕右侧的固定坐标 (920, 384)
+        function flyToCore() {
+            isConnected = true;
+            const coreCX = 920; 
+            const coreCY = 384; 
+
+            targetFiles.forEach((item, index) => {
+                setTimeout(() => {
+                    const finalX = coreCX + item.targetX - 30; // 减去30px以居中图标自身宽度
+                    const finalY = coreCY + item.targetY - 30;
+
+                    item.element.style.transform = `translate(${finalX}px, ${finalY}px)`;
+
+                    setTimeout(() => {
+                        item.line.setAttribute('x1', coreCX);
+                        item.line.setAttribute('y1', coreCY);
+                        item.line.setAttribute('x2', coreCX + item.targetX);
+                        item.line.setAttribute('y2', coreCY + item.targetY);
+                        item.line.style.opacity = 1;
+                    }, 1000); 
+
+                }, index * 200); // 依次飞出的时间差
+            });
+        }
+
+        // 启动背景文件循环刷新
+        shuffleLeft(); 
+        setInterval(shuffleLeft, 2000);
+
+        // 绑定按钮事件
+        document.getElementById('btnPlay').onclick = () => {
+            if(!isConnected) flyToCore();
+        };
+
+        document.getElementById('btnReset').onclick = () => {
+            isConnected = false;
+            targetFiles.forEach(item => { item.line.style.opacity = 0; }); 
+            shuffleLeft(); 
+        };
+
+    </script>
+
+    <!-- =========================================================
+         嵌入桥：语言 + 主题 + 紧凑态 + 自动演示
+         由外层页面通过 ?lang= / ?theme= / ?compact= / ?autoplay= 参数或 postMessage 控制。
+         单独打开本文件时行为与原始 demo 完全一致（中文、深色、手动点击）。
+         ========================================================= -->
+    <script>
+    (function () {
+        var I18N = {
+            zh: {
+                title: '引力桌面演示',
+                play:  '▶️ 演示：飞入紧密连接',
+                reset: '🔄 重置散落',
+                core:  '文件核心 6'
+            },
+            en: {
+                title: 'Gravity Desktop — demo',
+                play:  '▶️ Play: fly in and connect',
+                reset: '🔄 Reset to scattered',
+                core:  'File Core 6'
+            }
+        };
+
+        var params = new URLSearchParams(location.search);
+
+        function setLang(lang) {
+            var t = I18N[lang] || I18N.zh;
+            document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
+            document.title = t.title;
+            var play  = document.getElementById('btnPlay');
+            var reset = document.getElementById('btnReset');
+            var core  = document.querySelector('.core-text');
+            if (play)  play.textContent  = t.play;
+            if (reset) reset.textContent = t.reset;
+            if (core)  core.textContent  = t.core;
+        }
+
+        function setCompact(on) {
+            document.body.classList.toggle('compact', !!on);
+        }
+
+        /* 主题：只有「浅色」需要挂属性，深色就是本文件的原始外观 */
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+        }
+
+        window.addEventListener('message', function (e) {
+            var d = e.data;
+            if (!d || typeof d !== 'object') return;
+            if (d.type === 'gd-lang')    setLang(d.lang);
+            if (d.type === 'gd-compact') setCompact(d.compact);
+            if (d.type === 'gd-theme')   setTheme(d.theme);
+        });
+
+        setLang(params.get('lang') === 'en' ? 'en' : 'zh');
+        setCompact(params.get('compact') === '1');
+        setTheme(params.get('theme') === 'light' ? 'light' : 'dark');
+
+        if (params.get('autoplay') === '1') {
+            setTimeout(function () {
+                if (typeof isConnected !== 'undefined' && !isConnected) flyToCore();
+            }, 1200);
+        }
+    })();
+    </script>
+</body>
+</html>
